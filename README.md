@@ -1,70 +1,46 @@
-# Getting Started with Create React App
+# Dando deploy automático com o GitHub Pages
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+- A princípio, crie seu projeto (criei o meu em react, com o comando `npx create react-app nomedoprojeto`)
 
-## Available Scripts
+- após isso, dentro da pasta raíz, crie a seguinte sequência de arquivos: `.github/workflows/build.yml`
 
-In the project directory, you can run:
+- Coloque esse código aqui: 
 
-### `npm start`
+```yml 
+name: deploy 
+on:
+  push:
+    branches: 
+      - main ###IMPORTANTE: Isso diz que o código será rodado uando houverem pushes na main (preferivelmente coloque mais branches, nunca dê push na main)
+jobs: #tarefas a fazer
+  deploy:
+    runs-on: ubuntu-20.04 #OS do servidor que o Pages vai hospedar
+    steps: #indica as tecnologias a serem usadas
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with: #indica qual versão do node usar
+          node-version: '18.x' #18.0 pra cima
+      - name: Build web-app
+        run: |
+          npm ci 
+          npm run build 
+        #faz a build do projeto
+      - name: Deploy to gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build
+```
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- Com o código feito, acesse no seu repositório: `settings>actions>general` e, ao fim da página:
+    - marque a checkbox `Allow GitHub Actions to create and approve pull requests`
+    - Marque o radio (checkbox redonda) `Read and write permissions`
+    
+- Clique em save
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- Agora, acesse no seu repositório o menu actions e veja se o deploy foi bem sucedido
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- Agora, vá em `settings>pages` e:
+    - Escolha para dar deploy via branch
+    - Mude o branch para `gh-pages` (que o bot criou automaticamente com o build.yml)
+    - Espere um menu no topo da página que leve você ao seu site, agora com deploys automáticos!
